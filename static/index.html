@@ -4,13 +4,13 @@
   <script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
   <script>
     tinymce.init({
-      selector:'textarea',
-      plugins: 'tinymceMathjax',
-      toolbar: 'tinymceMathjax'
+      selector: 'textarea',
+      plugins: ['preview', 'tinymceMathjax'],
+      toolbar: 'asciimath asciimathcharmap'
     });
   </script>
 </head>
 <body>
-  <textarea>Testing tinymceMathjax</textarea>
+  <textarea>Testing tinymceMathjax AM: <span class="AM">`1 + 2`</span> TeX: <span class="AM">$$2 + 3$$</span> </textarea>
 </body>
 </html>
