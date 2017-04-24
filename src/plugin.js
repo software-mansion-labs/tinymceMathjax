@@ -3,7 +3,9 @@ const addMathJaxScript = document => {
   const head = document.head;
   const script = document.createElement('script');
   script.type = 'text/x-mathjax-config';
-  script.text = "MathJax.Hub.Config({tex2jax: {inlineMath: [['$$','$$']], displayMath: [['$$$', '$$$']]}});";
+  script.text = "MathJax.Hub.Config({" +
+    `tex2jax: {ignoreClass: ".*", processClass: 'AM', inlineMath: [['$$','$$']], displayMath: [['$$$','$$$']]},` +
+    `asciimath2jax: {ignoreClass: ".*", processClass: 'AM'} });`
   head.appendChild(script);
 
   const script2 = document.createElement('script');
@@ -29,6 +31,26 @@ const plugin = (editor) => {
     const MathJax = editor.contentWindow.MathJax;
     MathJax.Hub.Queue(["Typeset", MathJax.Hub, element]);
   });
+  editor.addCommand('removeMathJax', () => {
+    const MathJax = editor.contentWindow.MathJax;
+    const allJax = MathJax.Hub.getAllJax();
+    for (let i = 0, m = allJax.length; i < m; i++) {
+      const jax = allJax[i];
+      const jaxNode = editor.dom.get(jax.inputID);
+      if (jaxNode) {
+        const mathNode = jaxNode.parentNode;
+        const plainText = removeJax(jax.originalText, jax.inputJax);
+        mathNode.innerHTML = plainText;
+      }
+    }
+
+    editor.dom.remove('MathJax_Message');
+    const hidden = editor.dom.get('MathJax_Hidden');
+    const fonts = editor.dom.get('MathJax_Font_Test');
+    editor.dom.remove(hidden ? hidden.parentNode : '');
+    editor.dom.remove(fonts ? fonts.parentNode : '');
+  });
+
   const getAllJax = element => {
     const MathJax = editor.contentWindow.MathJax;
     const allJax = MathJax.Hub.getAllJax(element);
@@ -57,22 +79,7 @@ const plugin = (editor) => {
     const idx = Array.prototype.indexOf.call(customBookMark.parentNode.childNodes, customBookMark) + 2;
     editor.selection.setCursorLocation(customBookMark.parentNode, idx);
     editor.dom.remove('customBookmark2');
-  }
-  // const disableMathJax = () => {
-  //   const MathJax = editor.contentWindow.MathJax;
-  //   let HTML = MathJax.HTML, jax = MathJax.Hub.getAllJax();
-  //   for (let i = 0, m = jax.length; i < m; i++) {
-  //     let script = jax[i].SourceElement(), tex = jax[i].originalText;
-  //     if (script.type.match(/display/)) {tex = "\\\\["+tex+"\\\\]"} else {tex = "\\\\("+tex+"\\\\)"}
-  //     jax[i].Remove();
-  //     let preview = script.previousSibling;
-  //     if (preview && preview.className === "MathJax_Preview") {
-  //       preview.parentNode.removeChild(preview);
-  //     }
-  //     preview = HTML.Element("span",{className:"MathJax_Preview"},[tex]);
-  //     script.parentNode.insertBefore(preview,script);
-  //   }
-  // };
+  };
   const exitAMmode = () => {
     if (lastAMnode) {
       const element = lastAMnode;
@@ -100,7 +107,6 @@ const plugin = (editor) => {
   });
   editor.on('keydown', (event) => {
     if (event.keyCode == 13 || event.keyCode == 10) {
-      const element = lastAMnode;
       if (exitAMmode()) {
         setCursorAfter(lastAMnode);
         event.stopPropagation();
@@ -114,7 +120,6 @@ const plugin = (editor) => {
     if (mathNode) {
       const allJax = getAllJax(mathNode);
       if (allJax.length) {
-      console.log('allJax', allJax);
         const jax = allJax[0];
         const plainText = removeJax(jax.originalText, jax.inputJax);
         mathNode.innerHTML = plainText;
@@ -131,8 +136,8 @@ const plugin = (editor) => {
       exitAMmode();
     }
   });
-  editor.on('PostProcess', event => {
-    console.log('event', event);
+  editor.on('PreProcess', () => {
+    editor.execCommand('removeMathJax');
   });
 
   // Register the command so that it can be invoked by using tinyMCE.activeEditor.execCommand('mceAsciimath');
@@ -144,7 +149,7 @@ const plugin = (editor) => {
       editor.selection.setContent(value);
     }
   });
-  const url = '.';
+  const url = editor.getParam("document_base_url") + 'plugins/tinymceMathjax';
 
   editor.addCommand('mceAsciimathDlg', () => {
     editor.windowManager.open({

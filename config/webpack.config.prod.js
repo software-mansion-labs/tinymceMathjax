@@ -2,7 +2,7 @@ const path = require('path')
 const webpack = require('webpack')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
-const pluginName = 'tinymce-mathjax'
+const pluginName = 'tinymceMathjax'
 
 module.exports = {
   entry: {
@@ -30,6 +30,14 @@ module.exports = {
     new CopyWebpackPlugin([
       {
         from: path.join(__dirname, '../src/LICENSE'),
+        to: path.join(__dirname, '../dist', pluginName)
+      },
+      {
+        from: path.join(__dirname, '../img'),
+        to: path.join(__dirname, '../dist', pluginName, 'img')
+      },
+      {
+        from: path.join(__dirname, '../amcharmap.htm'),
         to: path.join(__dirname, '../dist', pluginName)
       }
     ])
