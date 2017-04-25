@@ -3,9 +3,11 @@ const addMathJaxScript = document => {
   const head = document.head;
   const script = document.createElement('script');
   script.type = 'text/x-mathjax-config';
-  script.text = "MathJax.Hub.Config({" +
-    `tex2jax: {ignoreClass: ".*", processClass: 'AM', inlineMath: [['$$','$$']], displayMath: [['$$$','$$$']]},` +
-    `asciimath2jax: {ignoreClass: ".*", processClass: 'AM'} });`
+  script.text = `
+    MathJax.Hub.Config({
+      tex2jax: {ignoreClass: ".*", processClass: 'AM', inlineMath: [['$$','$$']], displayMath: [['$$$','$$$']]},
+      asciimath2jax: {ignoreClass: ".*", processClass: 'AM'}
+    });`;
   head.appendChild(script);
 
   const script2 = document.createElement('script');
