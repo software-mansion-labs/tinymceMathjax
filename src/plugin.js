@@ -151,7 +151,7 @@ const plugin = (editor) => {
       editor.selection.setContent(value);
     }
   });
-  const url = editor.getParam("document_base_url") + 'plugins/tinymceMathjax';
+  const url = editor.getParam("document_base_url") + 'plugins/mathjax';
 
   editor.addCommand('mceAsciimathDlg', () => {
     editor.windowManager.open({
