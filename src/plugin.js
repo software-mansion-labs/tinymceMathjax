@@ -1,13 +1,23 @@
-const addMathJaxScript = document => {
-  const mathJaxUrl = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+const addMathJaxScript = (document, mathjaxUrl) => {
+  const mathJaxUrl = mathjaxUrl || 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_HTMLorMML';
   const head = document.head;
   const script = document.createElement('script');
   script.type = 'text/x-mathjax-config';
   script.text = `
+    MathJax.Hub.Register.StartupHook("AsciiMath Jax Config",() => {
+      var AM = MathJax.InputJax.AsciiMath.AM;
+      AM.symbols.push(
+        {input:"strike", tag:"menclose", output:"strike", atname:"notation", atval:"horizontalstrike", tex:"sout", ttype:AM.TOKEN.UNARY}
+      );
+    });
     MathJax.Hub.Config({
+      TeX: {
+        extensions: ["cancel.js"],
+      },
       tex2jax: {ignoreClass: ".*", processClass: 'AM', inlineMath: [['$$','$$']], displayMath: [['$$$','$$$']]},
       asciimath2jax: {ignoreClass: ".*", processClass: 'AM'}
-    });`;
+    });
+  `;
   head.appendChild(script);
 
   const script2 = document.createElement('script');
@@ -93,7 +103,7 @@ const plugin = (editor) => {
   };
   const testAMclass = element => element.className == 'AM';
   editor.on('init', args => {
-    addMathJaxScript(args.target.dom.doc);
+    addMathJaxScript(args.target.dom.doc, editor.getParam('mathjaxUrl'));
   });
   editor.on('keypress', event => {
     if (event.key == '`') {
