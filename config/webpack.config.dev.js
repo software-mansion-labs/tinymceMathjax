@@ -19,9 +19,9 @@ module.exports = {
   ],
   devServer: {
     proxy: {
-      "/plugins/tinymceMathjax": {
+      "/plugins/mathjax": {
         target: "http://localhost:8080",
-        pathRewrite: {"^/plugins/tinymceMathjax": ""}
+        pathRewrite: {"^/plugins/mathjax": ""}
       },
     }
   }

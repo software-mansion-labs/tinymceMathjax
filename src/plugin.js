@@ -1,8 +1,11 @@
 const mathJaxDefaultConfig = {
+  MathMenu: {
+    showLocale: false,
+    showRenderer: false,
+  },
   TeX: {
     extensions: ["cancel.js"],
   },
-  tex2jax: {ignoreClass: ".*", processClass: 'AM', inlineMath: [['$$','$$']], displayMath: [['$$$','$$$']]},
   asciimath2jax: {ignoreClass: ".*", processClass: 'AM'},
   tex2jax: {ignoreClass: ".*", processClass: 'AM', inlineMath: [['$$','$$']], displayMath: [['$$$','$$$']]},
   "HTML-CSS": {
@@ -52,7 +55,7 @@ const plugin = (editor) => {
     if (copyMode) {
       editor.execCommand('removeMathJax');
     } else {
-      editor.execCommand('runMathJax', editor.container.id);
+      editor.execCommand('runMathJax', editor.editorContainer.id);
     }
   });
   editor.addCommand('runMathJax', element => {
