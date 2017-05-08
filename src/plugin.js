@@ -46,7 +46,15 @@ const stopPropagating = event => {
 };
 
 const plugin = (editor) => {
-  let lastAMnode;
+  let lastAMnode, copyMode;
+  editor.addCommand('toggleMathJax', () => {
+    copyMode = !copyMode;
+    if (copyMode) {
+      editor.execCommand('removeMathJax');
+    } else {
+      editor.execCommand('runMathJax', editor.container.id);
+    }
+  });
   editor.addCommand('runMathJax', element => {
     const MathJax = editor.contentWindow.MathJax;
     MathJax.Hub.Queue(["Typeset", MathJax.Hub, element]);
@@ -187,6 +195,12 @@ const plugin = (editor) => {
     tooltip : 'Add New Math',
     cmd : 'mceAsciimath',
     image : url + '/img/ed_mathformula2.gif'
+  });
+
+  editor.addButton('toggleMath', {
+    tooltip : 'Copy math',
+    cmd : 'toggleMathJax',
+    icon : 'copy'
   });
 
   editor.addButton('asciimathcharmap', {
