@@ -1,5 +1,19 @@
-const addMathJaxScript = (document, mathjaxUrl) => {
-  const mathJaxUrl = mathjaxUrl || 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+const mathJaxDefaultConfig = {
+  TeX: {
+    extensions: ["cancel.js"],
+  },
+  tex2jax: {ignoreClass: ".*", processClass: 'AM', inlineMath: [['$$','$$']], displayMath: [['$$$','$$$']]},
+  asciimath2jax: {ignoreClass: ".*", processClass: 'AM'},
+  tex2jax: {ignoreClass: ".*", processClass: 'AM', inlineMath: [['$$','$$']], displayMath: [['$$$','$$$']]},
+  "HTML-CSS": {
+    availableFonts: "STIX"
+  }
+};
+const mathJaxDefaultUrl = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+
+const addMathJaxScript = (document, mathJaxCustomUrl, mathJaxCustomConfig) => {
+  const mathJaxUrl = mathJaxCustomUrl || mathJaxDefaultUrl;
+  const mathJaxConfig = mathJaxCustomConfig || mathJaxDefaultConfig;
   const head = document.head;
   const script = document.createElement('script');
   script.type = 'text/x-mathjax-config';
@@ -10,13 +24,7 @@ const addMathJaxScript = (document, mathjaxUrl) => {
         {input:"strike", tag:"menclose", output:"strike", atname:"notation", atval:"horizontalstrike", tex:"sout", ttype:AM.TOKEN.UNARY}
       );
     });
-    MathJax.Hub.Config({
-      TeX: {
-        extensions: ["cancel.js"],
-      },
-      tex2jax: {ignoreClass: ".*", processClass: 'AM', inlineMath: [['$$','$$']], displayMath: [['$$$','$$$']]},
-      asciimath2jax: {ignoreClass: ".*", processClass: 'AM'}
-    });
+    MathJax.Hub.Config(${JSON.stringify(mathJaxConfig)});
   `;
   head.appendChild(script);
 
@@ -96,14 +104,16 @@ const plugin = (editor) => {
     if (lastAMnode) {
       const element = lastAMnode;
       lastAMnode = null;
-      editor.execCommand('runMathJax', element);
+      if (!copyMode) {
+        editor.execCommand('runMathJax', element);
+      }
       return true;
     }
     return false;
   };
   const testAMclass = element => element.className == 'AM';
   editor.on('init', args => {
-    addMathJaxScript(args.target.dom.doc, editor.getParam('mathjaxUrl'));
+    addMathJaxScript(args.target.dom.doc, editor.getParam('mathjaxUrl'), editor.getParam('mathjaxConfig'));
   });
   editor.on('keypress', event => {
     if (event.key == '`') {
