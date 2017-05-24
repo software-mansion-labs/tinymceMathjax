@@ -9,7 +9,8 @@ const mathJaxDefaultConfig = {
   asciimath2jax: {ignoreClass: ".*", processClass: 'AM'},
   tex2jax: {ignoreClass: ".*", processClass: 'AM', inlineMath: [['$$','$$']], displayMath: [['$$$','$$$']]},
   "HTML-CSS": {
-    availableFonts: "STIX"
+    availableFonts: ["STIX"],
+    preferredFont: "STIX",
   }
 };
 const mathJaxDefaultUrl = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_HTMLorMML';
@@ -24,7 +25,9 @@ const addMathJaxScript = (document, mathJaxCustomUrl, mathJaxCustomConfig) => {
     MathJax.Hub.Register.StartupHook("AsciiMath Jax Config",() => {
       var AM = MathJax.InputJax.AsciiMath.AM;
       AM.symbols.push(
-        {input:"strike", tag:"menclose", output:"strike", atname:"notation", atval:"horizontalstrike", tex:"sout", ttype:AM.TOKEN.UNARY}
+        {input:"strike", tag:"menclose", output:"strike", atname:"notation", atval:"horizontalstrike", tex:"sout", ttype:AM.TOKEN.UNARY},
+        {input:"rlarw", tag:"mo", output:"\u21c4", tex:"\\rightleftarrows", ttype:AM.TOKEN.CONST},
+        {input:"permille", tag:"mo", output:"\u2030",  tex:"text{\\textperthousand}", ttype:AM.TOKEN.CONST},
       );
     });
     MathJax.Hub.Config(${JSON.stringify(mathJaxConfig)});
@@ -49,7 +52,7 @@ const stopPropagating = event => {
 };
 
 const plugin = (editor) => {
-  let lastAMnode, copyMode;
+  let lastAMnode, copyMode, subscript, superscript, disableSubSup;
   editor.addCommand('toggleMathJax', () => {
     copyMode = !copyMode;
     if (copyMode) {
@@ -147,9 +150,13 @@ const plugin = (editor) => {
       }
     }
   });
-  editor.on('nodechange', event => {
+  editor.on('nodechange', (event, sumting) => {
     const element = event.element;
     const mathNode = testAMclass(element) ? element : editor.dom.getParent(element, testAMclass);
+    disableSubSup = mathNode !== null;
+    subscript.disabled(disableSubSup);
+    superscript.disabled(disableSubSup);
+
     if (mathNode) {
       const allJax = getAllJax(mathNode);
       if (allJax.length) {
@@ -201,7 +208,7 @@ const plugin = (editor) => {
   });
 
   editor.addButton('toggleMath', {
-    tooltip : 'Copy math',
+    tooltip : 'Copy math  (ctrl+m)',
     cmd : 'toggleMathJax',
     icon : 'copy'
   });
@@ -210,6 +217,32 @@ const plugin = (editor) => {
     tooltip : 'Math Symbols',
     cmd : 'mceAsciimathDlg',
     image : url + '/img/ed_mathformula.gif'
+  });
+
+  editor.shortcuts.add('ctrl+m', 'same action as copy math button', 'toggleMathJax');
+  editor.shortcuts.add('ctrl+u', 'same action as superscript button', () =>
+    !disableSubSup && editor.execCommand('superscript')
+  );
+  editor.shortcuts.add('ctrl+d', 'same action as subscript button', () =>
+    !disableSubSup && editor.execCommand('subscript')
+  );
+
+  editor.addButton('subscript', {
+    cmd: "Subscript",
+    icon: "subscript",
+    onPostRender: function () {
+      subscript = this;
+    },
+    tooltip: "Subscript (ctrl+d)",
+  });
+
+  editor.addButton('superscript', {
+    cmd: "Superscript",
+    icon: "superscript",
+    onPostRender: function () {
+      superscript = this;
+    },
+    tooltip: "Superscript (ctrl+u)",
   });
 };
 
