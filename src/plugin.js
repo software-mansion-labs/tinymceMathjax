@@ -11,6 +11,9 @@ const mathJaxDefaultConfig = {
   "HTML-CSS": {
     availableFonts: ["STIX"],
     preferredFont: "STIX",
+  },
+  AsciiMath: {
+    decimalsignAlternative: ","
   }
 };
 const mathJaxDefaultUrl = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_HTMLorMML';
