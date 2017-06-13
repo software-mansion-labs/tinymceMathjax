@@ -11,6 +11,7 @@ const mathJaxDefaultConfig = {
     preferredFont: "STIX",
     webFont: "STIX-Web",
     imageFont: null,
+    scale: 125,
   },
   AsciiMath: {
     decimalsignAlternative: ","
