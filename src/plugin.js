@@ -211,7 +211,7 @@ const plugin = (editor) => {
   });
 
   editor.addButton('toggleMath', {
-    tooltip : 'Copy math  (ctrl+m)',
+    tooltip : 'Copy math  (alt+m)',
     cmd : 'toggleMathJax',
     icon : 'copy'
   });
@@ -222,11 +222,11 @@ const plugin = (editor) => {
     image : url + '/img/ed_mathformula.gif'
   });
 
-  editor.shortcuts.add('ctrl+m', 'same action as copy math button', 'toggleMathJax');
-  editor.shortcuts.add('ctrl+u', 'same action as superscript button', () =>
+  editor.shortcuts.add('alt+m', 'same action as copy math button', 'toggleMathJax');
+  editor.shortcuts.add('alt+b', 'same action as superscript button', () =>
     !disableSubSup && editor.execCommand('superscript')
   );
-  editor.shortcuts.add('ctrl+d', 'same action as subscript button', () =>
+  editor.shortcuts.add('alt+n', 'same action as subscript button', () =>
     !disableSubSup && editor.execCommand('subscript')
   );
 
@@ -236,7 +236,7 @@ const plugin = (editor) => {
     onPostRender: function () {
       subscript = this;
     },
-    tooltip: "Subscript (ctrl+d)",
+    tooltip: "Subscript (alt+n)",
   });
 
   editor.addButton('superscript', {
@@ -245,7 +245,7 @@ const plugin = (editor) => {
     onPostRender: function () {
       superscript = this;
     },
-    tooltip: "Superscript (ctrl+u)",
+    tooltip: "Superscript (alt+b)",
   });
 };
 
