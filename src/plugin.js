@@ -1,8 +1,6 @@
 const mathJaxDefaultConfig = {
-  MathMenu: {
-    showLocale: false,
-    showRenderer: false,
-  },
+  showMathMenu: false,
+  showMathMenuMSIE: false,
   TeX: {
     extensions: ["cancel.js"],
   },
@@ -11,6 +9,8 @@ const mathJaxDefaultConfig = {
   "HTML-CSS": {
     availableFonts: ["STIX"],
     preferredFont: "STIX",
+    webFont: "STIX-Web",
+    imageFont: null,
   },
   AsciiMath: {
     decimalsignAlternative: ","
