@@ -4,6 +4,7 @@ const mathJaxDefaultConfig = {
   TeX: {
     extensions: ["cancel.js"],
   },
+  messageStyle: "none",
   asciimath2jax: {ignoreClass: ".*", processClass: 'AM'},
   tex2jax: {ignoreClass: ".*", processClass: 'AM', inlineMath: [['$$','$$']], displayMath: [['$$$','$$$']]},
   "HTML-CSS": {
@@ -55,21 +56,31 @@ const stopPropagating = event => {
 };
 
 const plugin = (editor) => {
-  let lastAMnode, copyMode, subscript, superscript, disableSubSup;
+  let lastAMnode, copyMode, toggleMathButton, subscript, superscript, disableSubSup, runMathJax;
   editor.addCommand('toggleMathJax', () => {
     copyMode = !copyMode;
-    if (copyMode) {
-      editor.execCommand('removeMathJax');
-    } else {
-      editor.execCommand('runMathJax', editor.editorContainer.id);
-    }
+    toggleMathButton.active(copyMode);
+    editor.undoManager.ignore(() => {
+      if (copyMode) {
+        editor.execCommand('removeMathJax');
+      } else {
+        editor.execCommand('runMathJax', editor.editorContainer.id);
+      }
+    });
   });
   editor.addCommand('runMathJax', element => {
     const MathJax = editor.contentWindow.MathJax;
+    if (typeof element !== 'string' && !editor.getBody().contains(element)) {
+      return;
+    }
+    runMathJax = true;
     MathJax.Hub.Queue(["Typeset", MathJax.Hub, element]);
   });
   editor.addCommand('removeMathJax', () => {
     const MathJax = editor.contentWindow.MathJax;
+    if (!MathJax) {
+      return;
+    }
     const allJax = MathJax.Hub.getAllJax();
     for (let i = 0, m = allJax.length; i < m; i++) {
       const jax = allJax[i];
@@ -87,6 +98,38 @@ const plugin = (editor) => {
     editor.dom.remove(hidden ? hidden.parentNode : '');
     editor.dom.remove(fonts ? fonts.parentNode : '');
   });
+  const removeMathJax = () => {
+    const MathJax = editor.contentWindow.MathJax;
+    if (!MathJax) {
+      return;
+    }
+    const allJax = MathJax.Hub.getAllJax();
+    const fakeDom = editor.getDoc().cloneNode(true);
+    for (let i = 0, m = allJax.length; i < m; i++) {
+      const jax = allJax[i];
+      const jaxNode = fakeDom.getElementById(jax.inputID);
+      if (jaxNode) {
+        const mathNode = jaxNode.parentNode;
+        const plainText = removeJax(jax.originalText, jax.inputJax);
+        mathNode.innerHTML = plainText;
+      }
+    }
+    
+    const MJMessage = fakeDom.getElementById('MathJax_Message');
+    MJMessage && MJMessage.parentNode.removeChild(MJMessage);
+    editor.dom.remove('MathJax_Message');
+    const hidden = fakeDom.getElementById('MathJax_Hidden');
+    const fonts = fakeDom.getElementById('MathJax_Font_Test');
+    if (hidden) {
+      const hiddenParent = hidden.parentNode;
+      hiddenParent.parentNode.removeChild(hiddenParent);
+    }
+    if (fonts) {
+      const fontsParent = fonts.parentNode;
+      fontsParent.parentNode.removeChild(fontsParent);
+    }
+    return fakeDom.body.innerHTML;
+  };
 
   const getAllJax = element => {
     const MathJax = editor.contentWindow.MathJax;
@@ -111,6 +154,12 @@ const plugin = (editor) => {
     return editor.selection.getNode();
   };
   const setCursorAfter = element => {
+    if (!element) {
+      return;
+    }
+    if (!element.parentNode) {
+      return;
+    }
     element.insertAdjacentHTML('afterEnd', '<span id="customBookmark2"></span>&nbsp;');
     const customBookMark = editor.dom.get('customBookmark2');
     const idx = Array.prototype.indexOf.call(customBookMark.parentNode.childNodes, customBookMark) + 2;
@@ -122,7 +171,8 @@ const plugin = (editor) => {
       const element = lastAMnode;
       lastAMnode = null;
       if (!copyMode) {
-        editor.execCommand('runMathJax', element);
+        const callback = () => editor.execCommand('runMathJax', element);
+        editor.contentWindow.MathJax.Hub.Queue(callback);
       }
       return true;
     }
@@ -154,12 +204,15 @@ const plugin = (editor) => {
     }
   });
   editor.on('nodechange', (event, sumting) => {
+    if (runMathJax) {
+      runMathJax = false;
+      return;
+    }
     const element = event.element;
     const mathNode = testAMclass(element) ? element : editor.dom.getParent(element, testAMclass);
     disableSubSup = mathNode !== null;
     subscript.disabled(disableSubSup);
     superscript.disabled(disableSubSup);
-
     if (mathNode) {
       const allJax = getAllJax(mathNode);
       if (allJax.length) {
@@ -169,6 +222,7 @@ const plugin = (editor) => {
       }
       if (lastAMnode !== mathNode) {
         exitAMmode();
+        // setCursorAfter(mathNode);
         lastAMnode = mathNode;
       }
     } else if (lastAMnode) {
@@ -179,8 +233,25 @@ const plugin = (editor) => {
       exitAMmode();
     }
   });
-  editor.on('PreProcess', () => {
+  editor.on('Copy', e => {
+    copyMode = true;
+    toggleMathButton.active(copyMode);
     editor.execCommand('removeMathJax');
+  });
+  editor.on('Undo', e => {
+    copyMode = true;
+    toggleMathButton.active(copyMode);
+  });
+  // FIXING UNDO BUG
+  editor.on('BeforeAddUndo', e => {
+    e.level.content = removeMathJax();
+  });
+  editor.on('PreProcess', () => {
+    editor.undoManager.ignore(() => {
+      copyMode = true;
+      toggleMathButton.active(copyMode);
+      editor.execCommand('removeMathJax');
+    });
   });
 
   // Register the command so that it can be invoked by using tinyMCE.activeEditor.execCommand('mceAsciimath');
@@ -213,7 +284,10 @@ const plugin = (editor) => {
   editor.addButton('toggleMath', {
     tooltip : 'Copy math  (alt+m)',
     cmd : 'toggleMathJax',
-    icon : 'copy'
+    icon : 'copy',
+    onpostrender: function () {
+      toggleMathButton = this;
+    }
   });
 
   editor.addButton('asciimathcharmap', {
