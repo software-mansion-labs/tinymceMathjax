@@ -60,13 +60,13 @@ const plugin = (editor) => {
   editor.addCommand('toggleMathJax', () => {
     copyMode = !copyMode;
     toggleMathButton.active(copyMode);
-    editor.undoManager.ignore(() => {
+    // editor.undoManager.ignore(() => {
       if (copyMode) {
         editor.execCommand('removeMathJax');
       } else {
         editor.execCommand('runMathJax', editor.editorContainer.id);
       }
-    });
+    // });
   });
   editor.addCommand('runMathJax', element => {
     const MathJax = editor.contentWindow.MathJax;
@@ -247,11 +247,11 @@ const plugin = (editor) => {
     e.level.content = removeMathJax();
   });
   editor.on('PreProcess', () => {
-    editor.undoManager.ignore(() => {
+    // editor.undoManager.ignore(() => {
       copyMode = true;
       toggleMathButton.active(copyMode);
       editor.execCommand('removeMathJax');
-    });
+    // });
   });
 
   // Register the command so that it can be invoked by using tinyMCE.activeEditor.execCommand('mceAsciimath');
