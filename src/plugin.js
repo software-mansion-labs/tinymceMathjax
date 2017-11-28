@@ -191,7 +191,7 @@ const plugin = (editor) => {
   };
   const testAMclass = element => element.className == 'AM';
   editor.on('init', args => {
-    addMathJaxScript(args.target.dom.doc, editor.getParam('mathjaxUrl'), editor.getParam('mathjaxConfig'), editor.getParam('maxjaxExtraSymbol'));
+    addMathJaxScript(args.target.dom.doc, editor.getParam('mathjaxUrl'), editor.getParam('mathjaxConfig'), editor.getParam('mathjaxExtraSymbol'));
   });
   editor.on('keypress', event => {
     if (event.key == '`') {
