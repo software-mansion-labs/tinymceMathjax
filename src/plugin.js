@@ -17,24 +17,33 @@ const mathJaxDefaultConfig = {
     decimalsignAlternative: ","
   }
 };
+const mathJaxDefaultSymbol = [
+  {input:"strike", tag:"menclose", output:"strike", atname:"notation", atval:"horizontalstrike", tex:"sout", ttype: "UNARY"},
+  {input:"rlarw", tag:"mo", output:"\u21c4", tex:"\\rightleftarrows", ttype: "CONST" },
+  {input:"permille", tag:"mo", output:"\u2030",  tex:"text{\\textperthousand}", ttype: "CONST"},
+  {input:"nwarr", tag:"mo", output:"\u2196", tex:"nwarr;", ttype: "CONST"},
+  {input:"nearr", tag:"mo", output:"\u2197", tex:"nearr;", ttype: "CONST"},
+  {input:"searr", tag:"mo", output:"\u2198", tex:"searr;", ttype: "CONST"},
+  {input:"swarr", tag:"mo", output:"\u2199", tex:"swarr;", ttype: "CONST"},
+  {input:"+-", tag:"mo", output:"\u00B1", tex:"plusmn;", ttype: "CONST"},
+  {input:"mcirc", tag:"mo", output:"\u26AA", ttype: "CONST"},
+  {input:"mdiamond", tag:"mo", output:"\u2B26", ttype: "CONST"}
+];
 const mathJaxDefaultUrl = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_HTMLorMML';
 
-const addMathJaxScript = (document, mathJaxCustomUrl, mathJaxCustomConfig) => {
+const addMathJaxScript = (document, mathJaxCustomUrl, mathJaxCustomConfig, mathJaxCustomSymbol) => {
   const mathJaxUrl = mathJaxCustomUrl || mathJaxDefaultUrl;
   const mathJaxConfig = mathJaxCustomConfig || mathJaxDefaultConfig;
+  const mathJaxSymbol = mathJaxCustomSymbol || mathJaxDefaultSymbol;
   const head = document.head;
   const script = document.createElement('script');
   script.type = 'text/x-mathjax-config';
   script.text = `
     MathJax.Hub.Register.StartupHook("AsciiMath Jax Config",() => {
+      const mathJaxSymbol = ${JSON.stringify(mathJaxSymbol)};
       var AM = MathJax.InputJax.AsciiMath.AM;
-      AM.symbols.push(
-        {input:"strike", tag:"menclose", output:"strike", atname:"notation", atval:"horizontalstrike", tex:"sout", ttype:AM.TOKEN.UNARY},
-        {input:"rlarw", tag:"mo", output:"\u21c4", tex:"\\rightleftarrows", ttype:AM.TOKEN.CONST},
-        {input:"permille", tag:"mo", output:"\u2030",  tex:"text{\\textperthousand}", ttype:AM.TOKEN.CONST},
-        {input:"mcirc", tag:"mo", output:"\u26AA", ttype:AM.TOKEN.CONST},
-        {input:"mdiamond", tag:"mo", output:"\u2B26", ttype:AM.TOKEN.CONST},
-      );
+      const symbols = mathJaxSymbol.map(symbol => ({...symbol, ttype: AM.TOKEN[symbol.ttype]}));
+      AM.symbols.push(...symbols);
     });
     MathJax.Hub.Config(${JSON.stringify(mathJaxConfig)});
   `;
@@ -182,7 +191,7 @@ const plugin = (editor) => {
   };
   const testAMclass = element => element.className == 'AM';
   editor.on('init', args => {
-    addMathJaxScript(args.target.dom.doc, editor.getParam('mathjaxUrl'), editor.getParam('mathjaxConfig'));
+    addMathJaxScript(args.target.dom.doc, editor.getParam('mathjaxUrl'), editor.getParam('mathjaxConfig'), editor.getParam('mathjaxExtraSymbol'));
   });
   editor.on('keypress', event => {
     if (event.key == '`') {
