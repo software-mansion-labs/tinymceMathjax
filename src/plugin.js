@@ -32,6 +32,8 @@ const addMathJaxScript = (document, mathJaxCustomUrl, mathJaxCustomConfig) => {
         {input:"strike", tag:"menclose", output:"strike", atname:"notation", atval:"horizontalstrike", tex:"sout", ttype:AM.TOKEN.UNARY},
         {input:"rlarw", tag:"mo", output:"\u21c4", tex:"\\rightleftarrows", ttype:AM.TOKEN.CONST},
         {input:"permille", tag:"mo", output:"\u2030",  tex:"text{\\textperthousand}", ttype:AM.TOKEN.CONST},
+        {input:"mcirc", tag:"mo", output:"\u26AA", ttype:AM.TOKEN.CONST},
+        {input:"mdiamond", tag:"mo", output:"\u2B26", ttype:AM.TOKEN.CONST},
       );
     });
     MathJax.Hub.Config(${JSON.stringify(mathJaxConfig)});
@@ -138,7 +140,7 @@ const plugin = (editor) => {
   };
   const removeJax = (originalText, inputType) => {
     if (inputType === 'AsciiMath') {
-      return `\`${originalText}\``;
+      return `\`${originalText}\``.split('<').join('< ');
     }
     if (inputType === 'TeX') {
       return `\$\$${originalText}\$\$`;
