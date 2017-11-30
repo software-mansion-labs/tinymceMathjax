@@ -45,7 +45,8 @@ const addMathJaxScript = (document, mathJaxCustomUrl, mathJaxCustomConfig, mathJ
       const symbols = [];
       for(i = 0; i < mathJaxSymbol.length; ++i) {
         const symbol = mathJaxSymbol[i];
-        symbols.push({input: symbol.input, tag: symbol.tag, output: symbol.output, tex: symbol.text, ttype: AM.TOKEN[symbol.ttype]});
+        symbol.ttype = AM.TOKEN[symbol.ttype];
+        symbols.push(symbol);
       };
       AM.symbols.push(...symbols);
     });
