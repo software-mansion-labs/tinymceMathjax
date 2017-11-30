@@ -42,7 +42,11 @@ const addMathJaxScript = (document, mathJaxCustomUrl, mathJaxCustomConfig, mathJ
     MathJax.Hub.Register.StartupHook("AsciiMath Jax Config",() => {
       const mathJaxSymbol = ${JSON.stringify(mathJaxSymbol)};
       var AM = MathJax.InputJax.AsciiMath.AM;
-      const symbols = mathJaxSymbol.map(symbol => ({...symbol, ttype: AM.TOKEN[symbol.ttype]}));
+      const symbols = [];
+      for(i = 0; i < mathJaxSymbol.length; ++i) {
+        const symbol = mathJaxSymbol[i];
+        symbols.push({input: symbol.input, tag: symbol.tag, output: symbol.output, tex: symbol.text, ttype: AM.TOKEN[symbol.ttype]});
+      };
       AM.symbols.push(...symbols);
     });
     MathJax.Hub.Config(${JSON.stringify(mathJaxConfig)});
