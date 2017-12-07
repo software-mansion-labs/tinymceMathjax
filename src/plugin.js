@@ -154,7 +154,7 @@ const plugin = (editor) => {
   };
   const removeJax = (originalText, inputType) => {
     if (inputType === 'AsciiMath') {
-      return `\`${originalText}\``.split(/<[^= ]/).join('< ');
+      return `\`${originalText}\``.split(/<(?!=)/).join('< ');
     }
     if (inputType === 'TeX') {
       return `\$\$${originalText}\$\$`;
