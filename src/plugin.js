@@ -44,7 +44,7 @@ const addMathJaxScript = (document, mathJaxCustomUrl, mathJaxCustomConfig, mathJ
       var AM = MathJax.InputJax.AsciiMath.AM;
       const symbols = [];
       for(i = 0; i < mathJaxSymbol.length; ++i) {
-        const symbol = mathJaxSymbol[i];
+        const symbol = Object.assign({}, mathJaxSymbol[i]);
         symbol.ttype = AM.TOKEN[symbol.ttype];
         symbols.push(symbol);
       };
@@ -154,7 +154,11 @@ const plugin = (editor) => {
   };
   const removeJax = (originalText, inputType) => {
     if (inputType === 'AsciiMath') {
-      return `\`${originalText}\``.split(/<(?!=)/).join('< ');
+      // Resolving problem with `a <b ` which will cut part of equation on editing
+      // Exceptions:
+      // a <=b
+      // a <<b
+      return `\`${originalText}\``.split(/<(?![=<])/).join('< ');
     }
     if (inputType === 'TeX') {
       return `\$\$${originalText}\$\$`;
