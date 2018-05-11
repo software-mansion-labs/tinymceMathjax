@@ -341,6 +341,14 @@ const plugin = (editor) => {
     },
     tooltip: "Superscript (alt+b)",
   });
+
+  editor.addButton('premium', {
+    tooltip : 'Premium',
+    text: 'Premium',
+    onclick: function () {
+      editor.insertContent('{premium}');
+    },
+  });
 };
 
 export default plugin;
