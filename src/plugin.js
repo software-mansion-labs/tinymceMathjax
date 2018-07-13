@@ -231,8 +231,12 @@ const plugin = (editor) => {
     const element = event.element;
     const mathNode = testAMclass(element) ? element : editor.dom.getParent(element, testAMclass);
     disableSubSup = mathNode !== null;
-    subscript.disabled(disableSubSup);
-    superscript.disabled(disableSubSup);
+    if(subscript) {
+      subscript.disabled(disableSubSup);
+    }
+    if(superscript) {
+      superscript.disabled(disableSubSup);
+    }
     if (mathNode) {
       const allJax = getAllJax(mathNode);
       if (allJax.length) {
