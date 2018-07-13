@@ -39,7 +39,35 @@ const addMathJaxScript = (document, mathJaxCustomUrl, mathJaxCustomConfig, mathJ
   const script = document.createElement('script');
   script.type = 'text/x-mathjax-config';
   script.text = `
-    MathJax.Hub.Register.StartupHook("AsciiMath Jax Config",() => {
+    // https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Object/assign
+    if (typeof Object.assign != 'function') {
+      // Must be writable: true, enumerable: false, configurable: true
+      Object.defineProperty(Object, "assign", {
+        value: function assign(target, varArgs) { // .length of function is 2
+          'use strict';
+          if (target == null) { // TypeError if undefined or null
+            throw new TypeError('Cannot convert undefined or null to object');
+          }
+          var to = Object(target);
+          for (var index = 1; index < arguments.length; index++) {
+            var nextSource = arguments[index];
+            if (nextSource != null) { // Skip over if undefined or null
+              for (var nextKey in nextSource) {
+                // Avoid bugs when hasOwnProperty is shadowed
+                if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                  to[nextKey] = nextSource[nextKey];
+                }
+              }
+            }
+          }
+          return to;
+        },
+        writable: true,
+        configurable: true
+      });
+    }
+
+    MathJax.Hub.Register.StartupHook("AsciiMath Jax Config", function () {
       const mathJaxSymbol = ${JSON.stringify(mathJaxSymbol)};
       var AM = MathJax.InputJax.AsciiMath.AM;
       const symbols = [];
@@ -48,7 +76,7 @@ const addMathJaxScript = (document, mathJaxCustomUrl, mathJaxCustomConfig, mathJ
         symbol.ttype = AM.TOKEN[symbol.ttype];
         symbols.push(symbol);
       };
-      AM.symbols.push(...symbols);
+      AM.symbols = AM.symbols.concat(symbols);
     });
     MathJax.Hub.Config(${JSON.stringify(mathJaxConfig)});
   `;
