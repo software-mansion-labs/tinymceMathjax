@@ -29,7 +29,7 @@ const mathJaxDefaultSymbol = [
   {input:"mcirc", tag:"mo", output:"\u26AA", ttype: "CONST"},
   {input:"mdiamond", tag:"mo", output:"\u2B26", ttype: "CONST"}
 ];
-const mathJaxDefaultUrl = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+const mathJaxDefaultUrl = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_HTMLorMML';
 
 const addMathJaxScript = (document, mathJaxCustomUrl, mathJaxCustomConfig, mathJaxCustomSymbol) => {
   const mathJaxUrl = mathJaxCustomUrl || mathJaxDefaultUrl;
