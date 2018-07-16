@@ -29,10 +29,6 @@ module.exports = {
     }),
     new CopyWebpackPlugin([
       {
-        from: path.join(__dirname, '../img'),
-        to: path.join(__dirname, '../dist', pluginName, 'img')
-      },
-      {
         from: path.join(__dirname, '../amcharmap.htm'),
         to: path.join(__dirname, '../dist', pluginName)
       }

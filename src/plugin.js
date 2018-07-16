@@ -158,7 +158,7 @@ const plugin = (editor) => {
         mathNode.innerHTML = plainText;
       }
     }
-    
+
     const MJMessage = fakeDom.getElementById('MathJax_Message');
     MJMessage && MJMessage.parentNode.removeChild(MJMessage);
     editor.dom.remove('MathJax_Message');
@@ -330,7 +330,7 @@ const plugin = (editor) => {
   editor.addButton('asciimath', {
     tooltip : 'Add New Math',
     cmd : 'mceAsciimath',
-    image : url + '/img/ed_mathformula2.gif'
+    text: '\u03A3+'
   });
 
   editor.addButton('toggleMath', {
@@ -345,7 +345,7 @@ const plugin = (editor) => {
   editor.addButton('asciimathcharmap', {
     tooltip : 'Math Symbols',
     cmd : 'mceAsciimathDlg',
-    image : url + '/img/ed_mathformula.gif'
+    text: '\u03A3'
   });
 
   editor.shortcuts.add('alt+m', 'same action as copy math button', 'toggleMathJax');
