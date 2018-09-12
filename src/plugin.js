@@ -196,7 +196,7 @@ const plugin = (editor) => {
     const content = editor.selection.getContent();
     const entity = `<span class="AM">\`${content}<span id="customBookmark"></span>\`</span>&nbsp;`;
 
-    editor.selection.setContent(entity);
+    editor.execCommand('mceInsertContent', false, entity);
     editor.selection.setCursorLocation(editor.dom.get('customBookmark'));
     editor.dom.remove('customBookmark');
     return editor.selection.getNode();
@@ -312,7 +312,7 @@ const plugin = (editor) => {
       lastAMnode = wrapWithAM();
     }
     if (value) {
-      editor.selection.setContent(value);
+      editor.execCommand('mceInsertContent', false, value);
     }
   });
   const url = editor.getParam("document_base_url") + 'plugins/mathjax';
