@@ -101,6 +101,7 @@ const stopPropagating = event => {
 
 const plugin = (editor) => {
   let lastAMnode, copyMode, toggleMathButton, subscript, superscript, disableSubSup, runMathJax;
+
   editor.addCommand('toggleMathJax', () => {
     copyMode = !copyMode;
     toggleMathButton.active(copyMode);
@@ -112,6 +113,7 @@ const plugin = (editor) => {
       }
     });
   });
+
   editor.addCommand('runMathJax', element => {
     const MathJax = editor.contentWindow.MathJax;
     if (typeof element !== 'string' && !editor.getBody().contains(element)) {
@@ -120,6 +122,7 @@ const plugin = (editor) => {
     runMathJax = true;
     MathJax.Hub.Queue(["Typeset", MathJax.Hub, element]);
   });
+
   editor.addCommand('removeMathJax', () => {
     const MathJax = editor.contentWindow.MathJax;
     if (!MathJax) {
@@ -137,6 +140,7 @@ const plugin = (editor) => {
     editor.dom.remove(hidden ? hidden.parentNode : '');
     editor.dom.remove(fonts ? fonts.parentNode : '');
   });
+
   const removeMathJax = () => {
     const MathJax = editor.contentWindow.MathJax;
     if (!MathJax) {
