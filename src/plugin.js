@@ -128,12 +128,7 @@ const plugin = (editor) => {
     const allJax = MathJax.Hub.getAllJax();
     for (let i = 0, m = allJax.length; i < m; i++) {
       const jax = allJax[i];
-      const jaxNode = editor.dom.get(jax.inputID);
-      if (jaxNode) {
-        const mathNode = jaxNode.parentNode;
-        const plainText = removeJax(jax.originalText, jax.inputJax);
-        mathNode.innerHTML = plainText;
-      }
+      replaceJax(jax);
     }
 
     editor.dom.remove('MathJax_Message');
@@ -154,7 +149,7 @@ const plugin = (editor) => {
       const jaxNode = fakeDom.getElementById(jax.inputID);
       if (jaxNode) {
         const mathNode = jaxNode.parentNode;
-        const plainText = removeJax(jax.originalText, jax.inputJax);
+        const plainText = getExpression(jax.originalText, jax.inputJax);
         mathNode.innerHTML = plainText;
       }
     }
@@ -180,7 +175,19 @@ const plugin = (editor) => {
     const allJax = MathJax.Hub.getAllJax(element);
     return allJax;
   };
-  const removeJax = (originalText, inputType) => {
+
+  const replaceJax = (jax) => {
+    const jaxNode = editor.dom.get(jax.inputID + '-Frame');
+    if (jaxNode) {
+      editor.dom.remove(jax.inputID);
+      const mathNode = jaxNode.parentNode;
+      mathNode.getElementsByClassName('MathJax_Preview')[0].remove();
+      const expression = getExpression(jax.originalText, jax.inputJax);
+      mathNode.replaceChild(document.createTextNode(expression), jaxNode);
+    }
+  };
+
+  const getExpression = (originalText, inputType) => {
     if (inputType === 'AsciiMath') {
       // Resolving problem with `a <b ` which will cut part of equation on editing
       // Exceptions:
@@ -269,8 +276,7 @@ const plugin = (editor) => {
       const allJax = getAllJax(mathNode);
       if (allJax.length) {
         const jax = allJax[0];
-        const plainText = removeJax(jax.originalText, jax.inputJax);
-        mathNode.innerHTML = plainText;
+        replaceJax(jax);
       }
       if (lastAMnode !== mathNode) {
         exitAMmode();
