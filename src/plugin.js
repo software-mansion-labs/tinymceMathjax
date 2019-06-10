@@ -25,9 +25,13 @@ const mathJaxDefaultSymbol = [
   {input:"nearr", tag:"mo", output:"\u2197", tex:"nearr;", ttype: "CONST"},
   {input:"searr", tag:"mo", output:"\u2198", tex:"searr;", ttype: "CONST"},
   {input:"swarr", tag:"mo", output:"\u2199", tex:"swarr;", ttype: "CONST"},
+  {input:"|/", tag:"mo", output:"\u2224", tex:"|/;", ttype: "CONST"},
   {input:"+-", tag:"mo", output:"\u00B1", tex:"plusmn;", ttype: "CONST"},
   {input:"mcirc", tag:"mo", output:"\u26AA", ttype: "CONST"},
-  {input:"mdiamond", tag:"mo", output:"\u2B26", ttype: "CONST"}
+  {input:"mdiamond", tag:"mo", output:"\u2B26", ttype: "CONST"},
+  {input:"-+", tag:"mo", output:"\u2213", tex:"mnplus;", ttype: "CONST"},
+  {input:"mp", tag:"mo", output:"\u2213", tex:"mnplus;", ttype: "CONST"},
+  {input:"sphericalangle", tag:"mo", output:"\u2222", tex:"sphangle;", ttype: "CONST"},
 ];
 const mathJaxDefaultUrl = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_HTMLorMML';
 
