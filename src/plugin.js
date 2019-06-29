@@ -105,6 +105,7 @@ const stopPropagating = event => {
 
 const plugin = (editor) => {
   let lastAMnode, copyMode, toggleMathButton, subscript, superscript, disableSubSup, runMathJax;
+
   editor.addCommand('toggleMathJax', () => {
     copyMode = !copyMode;
     toggleMathButton.active(copyMode);
@@ -116,6 +117,7 @@ const plugin = (editor) => {
       }
     });
   });
+
   editor.addCommand('runMathJax', element => {
     const MathJax = editor.contentWindow.MathJax;
     if (typeof element !== 'string' && !editor.getBody().contains(element)) {
@@ -124,6 +126,7 @@ const plugin = (editor) => {
     runMathJax = true;
     MathJax.Hub.Queue(["Typeset", MathJax.Hub, element]);
   });
+
   editor.addCommand('removeMathJax', () => {
     const MathJax = editor.contentWindow.MathJax;
     if (!MathJax) {
@@ -132,12 +135,7 @@ const plugin = (editor) => {
     const allJax = MathJax.Hub.getAllJax();
     for (let i = 0, m = allJax.length; i < m; i++) {
       const jax = allJax[i];
-      const jaxNode = editor.dom.get(jax.inputID);
-      if (jaxNode) {
-        const mathNode = jaxNode.parentNode;
-        const plainText = removeJax(jax.originalText, jax.inputJax);
-        mathNode.innerHTML = plainText;
-      }
+      replaceJax(jax);
     }
 
     editor.dom.remove('MathJax_Message');
@@ -146,6 +144,7 @@ const plugin = (editor) => {
     editor.dom.remove(hidden ? hidden.parentNode : '');
     editor.dom.remove(fonts ? fonts.parentNode : '');
   });
+
   const removeMathJax = () => {
     const MathJax = editor.contentWindow.MathJax;
     if (!MathJax) {
@@ -158,11 +157,11 @@ const plugin = (editor) => {
       const jaxNode = fakeDom.getElementById(jax.inputID);
       if (jaxNode) {
         const mathNode = jaxNode.parentNode;
-        const plainText = removeJax(jax.originalText, jax.inputJax);
+        const plainText = getExpression(jax.originalText, jax.inputJax);
         mathNode.innerHTML = plainText;
       }
     }
-    
+
     const MJMessage = fakeDom.getElementById('MathJax_Message');
     MJMessage && MJMessage.parentNode.removeChild(MJMessage);
     editor.dom.remove('MathJax_Message');
@@ -184,7 +183,19 @@ const plugin = (editor) => {
     const allJax = MathJax.Hub.getAllJax(element);
     return allJax;
   };
-  const removeJax = (originalText, inputType) => {
+
+  const replaceJax = (jax) => {
+    const jaxNode = editor.dom.get(jax.inputID + '-Frame');
+    if (jaxNode) {
+      editor.dom.remove(jax.inputID);
+      const mathNode = jaxNode.parentNode;
+      mathNode.getElementsByClassName('MathJax_Preview')[0].remove();
+      const expression = getExpression(jax.originalText, jax.inputJax);
+      mathNode.replaceChild(document.createTextNode(expression), jaxNode);
+    }
+  };
+
+  const getExpression = (originalText, inputType) => {
     if (inputType === 'AsciiMath') {
       // Resolving problem with `a <b ` which will cut part of equation on editing
       // Exceptions:
@@ -200,7 +211,7 @@ const plugin = (editor) => {
     const content = editor.selection.getContent();
     const entity = `<span class="AM">\`${content}<span id="customBookmark"></span>\`</span>&nbsp;`;
 
-    editor.selection.setContent(entity);
+    editor.execCommand('mceInsertContent', false, entity);
     editor.selection.setCursorLocation(editor.dom.get('customBookmark'));
     editor.dom.remove('customBookmark');
     return editor.selection.getNode();
@@ -273,8 +284,7 @@ const plugin = (editor) => {
       const allJax = getAllJax(mathNode);
       if (allJax.length) {
         const jax = allJax[0];
-        const plainText = removeJax(jax.originalText, jax.inputJax);
-        mathNode.innerHTML = plainText;
+        replaceJax(jax);
       }
       if (lastAMnode !== mathNode) {
         exitAMmode();
@@ -316,7 +326,7 @@ const plugin = (editor) => {
       lastAMnode = wrapWithAM();
     }
     if (value) {
-      editor.selection.setContent(value);
+      editor.execCommand('mceInsertContent', false, value);
     }
   });
   const url = editor.getParam("document_base_url") + 'plugins/mathjax';
@@ -334,7 +344,7 @@ const plugin = (editor) => {
   editor.addButton('asciimath', {
     tooltip : 'Add New Math',
     cmd : 'mceAsciimath',
-    image : url + '/img/ed_mathformula2.gif'
+    text: '\u03A3+'
   });
 
   editor.addButton('toggleMath', {
@@ -349,7 +359,7 @@ const plugin = (editor) => {
   editor.addButton('asciimathcharmap', {
     tooltip : 'Math Symbols',
     cmd : 'mceAsciimathDlg',
-    image : url + '/img/ed_mathformula.gif'
+    text: '\u03A3'
   });
 
   editor.shortcuts.add('alt+m', 'same action as copy math button', 'toggleMathJax');
